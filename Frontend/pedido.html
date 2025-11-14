@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Pedido - Pedidos Ahorra</title>
+  <link rel="stylesheet" href="pedido.css">
+</head>
+<body>
+  <header>
+    <div class="logo">Pedidos Ahorra</div>
+  </header>
+
+  <div class="contenedor">
+
+    <div class="carta-confirmacion">
+      <div class="icono-completado">✅</div> <!-- Icono de checkmark, existe de alguna forma -->
+      <h2>¡Pedido Confirmado!</h2>
+      <div class="pedido-numero" id="pedido-numero">Pedido #0000-0001</div>
+      <div class="pedido-fecha" id="pedido-fecha">Realizado el 05/06/25 - 14:30</div>
+      <p>Gracias por tu pedido. Estamos preparando tu comida :P.</p>
+    </div>
+
+    <!-- Seguimiento del pedido con tiempo estimado integrado -->
+    <div class="estado-seguimiento">
+      <h3 class="estado-titulo">Estado de tu pedido</h3>
+      
+      <!-- Tiempo estimado -->
+      <div class="tiempo-estimado">
+        <h3>Tiempo estimado de entrega</h3>
+        <div class="tiempo-pantalla" id="contador">15:00</div>
+        <p>Tu pedido llegará entre las 15:05 y 15:15</p>
+      </div>
+      
+      <div class="timeline">
+        <div class="barra-iconos">
+          <div class="barra-progreso">
+            <div class="barra-progreso-exito" id="progreso-lleno"></div>
+          </div>
+          <div class="barra-icono-completado"></div>
+          <div class="barra-icono-activo"></div>
+          <div class="barra-icono"></div>
+          <div class="barra-icono"></div>
+        </div>
+        <div class="estado-actual" id="estado-actual">Preparando tu pedido</div>
+      </div>
+    </div>
+
+    <!-- Detalles del pedido -->
+    <div class="orden-detalles">
+      <h3>Detalles de tu pedido</h3>
+      <div id="orden-items">
+
+      </div>
+      
+      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid #f0f0f0;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span>Subtotal:</span>
+          <span id="orden-subtotal">$0.00</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span>Envío:</span>
+          <span>$2.50</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; color: var(--primary-color);">
+          <span>Total:</span>
+          <span id="orden-total">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="acciones">
+      <a href="index.html" class="btn">Volver al inicio</a>
+    </div>
+  </div>
+
+<!-- Scripts  para mudarlo despues -->
+
+  <script>
+    let pedidoData = {};
+    let tiempoPedido = 35 * 60; // 35 minutos en segundos
+    let Estado = 1; // 0: recibido, 1: preparando, 2: en camino, 3: entregado
+
+    // Generar número de pedido único
+    function generarNumeroPedido() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const time = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
+      return `PA-${year}${month}${day}-${time}`;
+    }
+
+    // Cargar datos del pedido
+    function cargarPedido() {
+      const carritoData = localStorage.getItem('pedidoData');
+      const fecha = new Date();
+      
+      if (carritoData) {
+        pedidoData = JSON.parse(carritoData);
+      } else {
+        // Datos de ejemplo si no hay datos guardados
+        pedidoData = {
+          items: [
+            { nombre: "Hamburguesa Clásica", precio: 5.99, cantidad: 1, imgSrc: "img/Hamburguesa.jpg" },
+            { nombre: "Pizza Pepperoni", precio: 8.50, cantidad: 1, imgSrc: "img/Pizza.jpg" }
+          ],
+          total: 14.49
+        };
+      }
+
+      // Actualizar UI / Necesario el español stack?
+      document.getElementById('pedido-numero').textContent = `Pedido #${generarNumeroPedido()}`;
+      document.getElementById('pedido-fecha').textContent = 
+        `Realizado el ${fecha.toLocaleDateString('es-ES', { 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric' 
+        })} - ${fecha.toLocaleTimeString('es-ES', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        })}`;
+
+      mostrarDetallesPedido();
+    }
+
+    // Mostrar detalles del pedido
+    function mostrarDetallesPedido() {
+      const contenedor = document.getElementById('orden-items');
+      let html = '';
+      let subtotal = 0;
+
+      pedidoData.items.forEach(item => {
+        const itemTotal = item.precio * item.cantidad;
+        subtotal += itemTotal;
+        
+        html += `
+          <div class="orden-item">
+            <img src="${item.imgSrc}" alt="${item.nombre}" class="imagen-item">
+            <div class="info-item">
+              <div class="nombre-item">${item.nombre}</div>
+              <div class="detalles-item">$${item.precio.toFixed(2)} x ${item.cantidad} = $${itemTotal.toFixed(2)}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      contenedor.innerHTML = html;
+      
+      const envio = 2.50;
+      const total = subtotal + envio;
+      
+      document.getElementById('orden-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+      document.getElementById('orden-total').textContent = `$${total.toFixed(2)}`;
+    }
+
+    // Countdown timer
+    function empezarConteo() {
+      const countdownElement = document.getElementById('contador');
+      
+      const timer = setInterval(() => {
+        const minutes = Math.floor(tiempoPedido / 60);
+        const seconds = tiempoPedido % 60;
+        
+        countdownElement.textContent = 
+          `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (tiempoPedido <= 0) {
+          clearInterval(timer);
+          countdownElement.textContent = "¡Ya llega!";
+        }
+        
+        tiempoPedido--;
+      }, 1000);
+    }
+
+    // Actualizar estado del pedido
+    function actualizarEstado() {
+      const statuses = [
+        { time: 25 * 60, status: 2 }, // En camino a los 10 minutos
+        { time: 5 * 60, status: 3 }   // Entregado a los 30 minutos
+      ];
+
+      const statusInterval = setInterval(() => {
+        statuses.forEach(statusUpdate => {
+          if (tiempoPedido === statusUpdate.time && Estado < statusUpdate.status) {
+            Estado = statusUpdate.status;
+            actualizarTiempo();
+          }
+        });
+
+        if (tiempoPedido <= 0) {
+          clearInterval(statusInterval);
+        }
+      }, 1000);
+    }
+
+    // Actualizar timeline visual
+    function actualizarTiempo() {
+      const iconos = document.querySelectorAll('.barra-icono');
+      const progressFill = document.getElementById('progreso-lleno');
+      const EstadoText = document.getElementById('estado-actual');
+      
+      const statusMessages = [
+        "Pedido recibido",
+        "Preparando tu pedido", 
+        "En camino a tu domicilio",
+        "¡Pedido entregado!"
+      ];
+      
+      iconos.forEach((icon, index) => {
+        icon.classList.remove('active', 'completed');
+        
+        if (index < Estado) {
+          icon.classList.add('completed');
+        } else if (index === Estado) {
+          icon.classList.add('active');
+        }
+      });
+      
+      // Actualizar barra de progreso (ARREGLAR AUN)
+      const progressPercentage = (Estado / (iconos.length - 1)) * 100;
+      progressFill.style.width = progressPercentage + '%';
+      
+      // Actualizar texto del estado actual
+      EstadoText.textContent = statusMessages[Estado];
+    }
+
+    // Inicializar página
+    document.addEventListener('DOMContentLoaded', function() {
+      cargarPedido();
+      empezarConteo();
+      actualizarEstado();
+      actualizarTiempo(); // Inicializar el timeline
+      
+      // Limpiar datos del pedido después de cargar
+      localStorage.removeItem('pedidoData');
+    });
+  </script>
+</body>
+</html>

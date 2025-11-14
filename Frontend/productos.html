@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu Comida</title>
+  <link rel="stylesheet" href="productos.css">
+</head>
+<body>
+  <header>
+    <div class="logo">Pedidos Ahorra</div>
+    <button class="menu">☰</button>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="login.html">Login</a>
+      <button id="carro-boton" class="relative">
+        🛒
+        <span id="carro-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+      </button>
+    </nav>
+
+    </div>
+  </header>
+
+  <section class= "titulo">
+    <div>
+      <h1>¡Ordena tu comida favorita!</h1>
+    </div>
+  </section>
+
+  <main>
+    <h2>Nuestro Menú</h2>
+    <div class="catalogo">
+  
+      <div class="producto" data-nombre="Hamburguesa Clásica" data-precio="5.99" data-stock="15">
+        <div class="producto-imagen">
+          <img src="img/Hamburguesa.jpg" alt="Hamburguesa">
+        </div>
+        <div class="producto-detalle">
+          <h3 >Hamburguesa Clásica</h3>
+          <p>Carne 100% vacuna, queso, lechuga y tomate.</p>
+          <p class="stock">En stock: 15 unidades</p>
+          <div class="precio-boton">
+            <span>$5.99</span>
+            <button class="añadirCarro">Agregar al carrito</button>
+          </div>
+        </div>
+      </div>
+  
+
+      <div class="producto" data-nombre="Ensalada César" data-precio="4.50" data-stock="10">
+        <div class="producto-imagen">
+          <img src="img/Pizza.jpg" alt="Pizza">
+        </div>
+        <div class="producto-detalle">
+          <h4 id="nombre">Pizza Pepperoni</h4>
+          <p>Deliciosa pizza con extra pepperoni y queso.</p>
+          <p class="stock">En stock: 8 unidades</p>
+          <div class="precio-boton">
+            <span>$8.50</span>
+            <button class="añadirCarro">Agregar al carrito</button>
+          </div>
+        </div>
+      </div>
+  
+      
+    </div>
+  </main>
+  
+  <footer>
+    <div>
+      <p>© 2025 Mi Restaurante. Todos los derechos reservados.</p>
+      <p>Contacto: contacto@micomida.com | +54 9 11 1234-5678</p>
+    </div>
+  </footer>
+
+  <div id="carro-modelo" class="carro-oculto">
+    <div class="carro-ventana"></div>
+    <div class="carro-contenido">
+      <button id="cerrar-carro" class="cerrar-btoon">✕</button>
+      <h2>Tu Carrito</h2>
+      <div id="carro-contenido">
+        <!-- Aquí se inyectarán en java script -->
+      </div>
+      <div class="carro-total">
+        <span>Total:</span>
+        <span id="carro-total">$0.00</span>
+      </div>
+      <button id="confirmar-pedido" class="confirmar-boton">Confirmar pedido</button>
+    </div>
+  </div>
+
+</body>
+<script src="carrito.js"></script>
+
+</html>
